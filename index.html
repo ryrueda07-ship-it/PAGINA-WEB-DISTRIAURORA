@@ -29,6 +29,9 @@
               slate: {
                 850: '#1e293b', // Custom dark slate
               }
+            },
+            animation: {
+              'scroll': 'scroll 40s linear infinite',
             }
           }
         }
@@ -46,6 +49,18 @@
       .scrollbar-hide {
           -ms-overflow-style: none;
           scrollbar-width: none;
+      }
+      
+      /* Filmstrip Animation */
+      @keyframes scroll {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+      }
+      .animate-scroll {
+        animation: scroll 40s linear infinite;
+      }
+      .pause-on-hover:hover {
+        animation-play-state: paused;
       }
     </style>
   <script type="importmap">

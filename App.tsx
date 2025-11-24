@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, ChevronRight, Phone, Mail, MapPin, Facebook, Instagram, Linkedin, CheckCircle, Truck, RefreshCw, Package, ArrowRight, Settings, Plus, Trash2, Edit2, Save, Image as ImageIcon, ShoppingCart, Minus, Award, Star, ShieldCheck, Search, Users, FileText, Download, Calendar, Camera, Lock, LogOut, Upload, FolderOpen, ExternalLink, MessageCircle, Share2, CalendarSearch, FileSearch, Hash, ToggleLeft, ToggleRight, DollarSign } from 'lucide-react';
+import { Menu, X, ChevronRight, Phone, Mail, MapPin, Facebook, Instagram, Linkedin, CheckCircle, Truck, RefreshCw, Package, ArrowRight, Settings, Plus, Trash2, Edit2, Save, Image as ImageIcon, ShoppingCart, Minus, Award, Star, ShieldCheck, Search, Users, FileText, Download, Calendar, Camera, Lock, LogOut, Upload, FolderOpen, ExternalLink, MessageCircle, Share2, CalendarSearch, FileSearch, Hash, ToggleLeft, ToggleRight, DollarSign, Images } from 'lucide-react';
 import { jsPDF } from "jspdf";
 import autoTable from 'jspdf-autotable';
 import { Logo } from './components/Logo';
@@ -119,6 +119,19 @@ function App() {
   // Static Images State (Editable)
   const [heroImage, setHeroImage] = useState("https://images.unsplash.com/photo-1628131367098-6e7e1088c279?auto=format&fit=crop&q=80&w=1200");
   const [aboutImage, setAboutImage] = useState("https://images.unsplash.com/photo-1615486511484-92e590508a68?auto=format&fit=crop&q=80&w=800");
+
+  // Filmstrip Images State
+  const [filmImages, setFilmImages] = useState([
+    "https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&q=80&w=600",
+    "https://images.unsplash.com/photo-1628131367098-6e7e1088c279?auto=format&fit=crop&q=80&w=600",
+    "https://images.unsplash.com/photo-1585514697204-749e7b28292f?auto=format&fit=crop&q=80&w=600",
+    "https://images.unsplash.com/photo-1605600659908-0ef719419d56?auto=format&fit=crop&q=80&w=600",
+    "https://images.unsplash.com/photo-1615486511484-92e590508a68?auto=format&fit=crop&q=80&w=600",
+    "https://images.unsplash.com/photo-1533777324565-a040eb52facd?auto=format&fit=crop&q=80&w=600"
+  ]);
+  const [isFilmstripModalOpen, setIsFilmstripModalOpen] = useState(false);
+  const [newFilmImage, setNewFilmImage] = useState('');
+
 
   // Simple Image Edit Modal State
   const [imageModal, setImageModal] = useState<{ isOpen: boolean, url: string, onSave: (url: string) => void } | null>(null);
@@ -299,6 +312,18 @@ function App() {
         };
         reader.readAsDataURL(file);
     }
+  };
+  
+  // Filmstrip Management
+  const addFilmImage = (url: string) => {
+      if(url) {
+          setFilmImages(prev => [...prev, url]);
+          setNewFilmImage('');
+      }
+  };
+
+  const removeFilmImage = (index: number) => {
+      setFilmImages(prev => prev.filter((_, i) => i !== index));
   };
 
   // Order Search Logic
@@ -630,7 +655,7 @@ function App() {
 
             <button 
               onClick={() => scrollTo(SectionId.CONTACT)}
-              className="bg-slate-900 text-white px-5 py-2 rounded-lg text-sm font-bold hover:bg-aurora-600 transition-colors shadow-lg shadow-aurora-500/10"
+              className="bg-slate-900 text-white px-7 py-3 rounded-lg font-bold hover:bg-aurora-600 transition-colors shadow-lg shadow-aurora-500/10 text-base"
             >
               Cotizar
             </button>
@@ -1118,6 +1143,33 @@ function App() {
         </div>
       </section>
 
+      {/* NEW: Moving Image Filmstrip (Carousel) */}
+      <div className="bg-slate-900 py-4 border-y border-slate-800 overflow-hidden relative group">
+          {isAdminMode && (
+              <button 
+                onClick={() => setIsFilmstripModalOpen(true)}
+                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30 bg-white text-slate-900 px-6 py-2 rounded-full font-bold shadow-2xl hover:bg-aurora-500 hover:text-white transition-all flex items-center gap-2 opacity-0 group-hover:opacity-100"
+              >
+                  <Images className="w-5 h-5" /> Gestionar Carrusel
+              </button>
+          )}
+          
+          <div className="flex w-max animate-scroll pause-on-hover hover:opacity-80 transition-opacity">
+              {/* Original Images */}
+              {filmImages.map((img, i) => (
+                  <div key={`original-${i}`} className="w-64 h-40 mx-2 rounded-lg overflow-hidden shrink-0 border border-slate-700 relative bg-slate-800">
+                      <img src={img} alt="" className="w-full h-full object-cover" />
+                  </div>
+              ))}
+              {/* Duplicate for infinite loop */}
+              {filmImages.map((img, i) => (
+                  <div key={`duplicate-${i}`} className="w-64 h-40 mx-2 rounded-lg overflow-hidden shrink-0 border border-slate-700 relative bg-slate-800">
+                      <img src={img} alt="" className="w-full h-full object-cover" />
+                  </div>
+              ))}
+          </div>
+      </div>
+
       {/* Features */}
       <div className="bg-slate-50 border-y border-slate-200 py-12">
         <div className="container mx-auto px-4 md:px-6 grid md:grid-cols-3 gap-8">
@@ -1580,6 +1632,72 @@ function App() {
           </div>
         </div>
       </footer>
+      
+      {/* Filmstrip Management Modal */}
+      {isFilmstripModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm">
+              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in duration-200 flex flex-col max-h-[90vh]">
+                  <div className="bg-aurora-600 p-6 text-white flex justify-between items-center">
+                      <h3 className="font-bold text-xl flex items-center gap-2">
+                          <Images className="w-6 h-6" /> Gestión de Carrusel
+                      </h3>
+                      <button onClick={() => setIsFilmstripModalOpen(false)} className="hover:bg-white/20 p-1 rounded-full"><X className="w-5 h-5"/></button>
+                  </div>
+                  
+                  <div className="p-6 overflow-y-auto">
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                          {filmImages.map((img, idx) => (
+                              <div key={idx} className="relative aspect-video rounded-lg overflow-hidden border border-gray-200 group">
+                                  <img src={img} className="w-full h-full object-cover" />
+                                  <button 
+                                    onClick={() => removeFilmImage(idx)}
+                                    className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                                    title="Eliminar Imagen"
+                                  >
+                                      <Trash2 className="w-4 h-4" />
+                                  </button>
+                              </div>
+                          ))}
+                      </div>
+                      
+                      <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                          <h4 className="font-bold text-slate-700 mb-3 text-sm">Agregar Nueva Imagen</h4>
+                          <div className="space-y-3">
+                              <label className="flex items-center justify-center w-full px-4 py-3 bg-white border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-aurora-500 hover:text-aurora-600 transition-colors">
+                                  <div className="flex flex-col items-center gap-1 text-gray-500">
+                                      <FolderOpen className="w-6 h-6" />
+                                      <span className="text-xs font-bold">Subir desde PC</span>
+                                  </div>
+                                  <input 
+                                      type="file" 
+                                      accept="image/*"
+                                      className="hidden" 
+                                      onChange={(e) => handleFileUpload(e, addFilmImage)}
+                                  />
+                              </label>
+                              
+                              <div className="flex gap-2">
+                                  <input 
+                                    type="url" 
+                                    value={newFilmImage}
+                                    onChange={(e) => setNewFilmImage(e.target.value)}
+                                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-aurora-500 outline-none text-sm"
+                                    placeholder="O pegar URL de imagen..."
+                                  />
+                                  <button 
+                                    onClick={() => addFilmImage(newFilmImage)}
+                                    disabled={!newFilmImage}
+                                    className="bg-slate-900 text-white px-4 py-2 rounded-lg font-bold text-sm disabled:opacity-50"
+                                  >
+                                      <Plus className="w-4 h-4" />
+                                  </button>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      )}
 
       {/* Product Management Modal (Existing) */}
       {isModalOpen && (
